@@ -110,6 +110,11 @@
             let nextLevelScore = 600;
             let cubeRotation =0;
             let backgroundOffset=0;
+            let platforms = [
+                { x:300, y:280, width:120, height:10},
+                { x:600, y:240, width:140, height:10},
+                { x:950, y:300, width:160, height:10}
+            ];
 
             function spawnObstacle(){
                 let height = 20+ Math.random() * 60;
@@ -158,6 +163,17 @@
                 ctx.lineTo(obs.x + obs.width, groundY);
                 ctx.closePath();
                 ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            function drawPlatforms(){
+                ctx.fillStyle = "#00ffcc";
+                ctx.shadowColor = "#00ffcc";
+                ctx.shadowBlur = 15;
+
+                for(let p of platforms){
+                    ctx.fillRect(p.x,p.y,p.width,p.height);
+                }
                 ctx.shadowBlur = 0;
             }
 
@@ -256,6 +272,7 @@
                 ctx.fillRect(0,groundY, canvas.width, 3);
                 ctx.shadowBlur = 0;
                 drawPlayer();
+                drawPlatforms();
                 for(let obs of obstacles){
                     drawTriangle(obs);
                 }
