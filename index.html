@@ -128,6 +128,8 @@
                 ctx.save();
                 ctx.translate(x+size/2, y+size/2);
                 ctx.rotate(cubeRotation);
+                ctx.shadowColor = "#00ffcc";
+                ctx.shadowBlur = 25;
                 ctx.fillStyle = "#00ffcc";
                 ctx.beginPath();
                 ctx.moveTo(-size/2 + radius, -size/2);
@@ -141,6 +143,7 @@
                 ctx.quadraticCurveTo(-size/2, -size/2, -size/2 + radius, -size/2)
                 ctx.closePath();
                 ctx.fill();
+                ctx.shadowBlur=0;
                 ctx.restore();
             }
 
