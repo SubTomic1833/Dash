@@ -5,7 +5,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
         <meta charset="UTF-8">
-        <title>DASH</title>
+        <title>GRIDRUN</title>
         <style>
             body{
                 margin: 0;
@@ -85,7 +85,7 @@
         </style>
     </head>
     <body>
-        <div id="title">DASH</div>
+        <div id="title">GRIDRUN</div>
         <div id="message">Press SPACE to start</div>
         <div id="flash"></div>
         <canvas id="gameCanvas" width="800" height="400"></canvas>
@@ -119,6 +119,7 @@
             let backgroundOffset=0;
             let bgFarOffset = 0;
             let bgMidOffset = 0;
+            let particles = [];
 
             function spawnObstacle(){
                 let height = 20+ Math.random() * 60;
@@ -189,13 +190,23 @@
                     cubeRotation = Math.round(cubeRotation/quarterTurn)*quarterTurn;
                 }
                 for(let i = 0; i < obstacles.length; i++){
-                    obstacles[i].x -= speed;
-                    const obsTop = groundY - obstacles[i].height;
-                    const safeZone = obsTop + obstacles[i].height * 0.75;
-
-                    if (player.x < obstacles[i].x + obstacles[i].width && player.x + player.size > obstacles[i].x && player.y > safeZone - player.size)
-                    {
-                        endGame();
+                    const o = obstacles[i];
+                    o.x -= speed;
+                    const px = player.x;
+                    const py = player.y;
+                    const ps = player.size;
+                    const ox = o.x;
+                    const ow = o.width;
+                    const oh = o.height;
+                    const xOverlap = px < ox + ow && px + ps > ox;
+                    if (xOverlap){
+                        const centerX = (px+ps/2)-ox;
+                        const t = centerX/ow;
+                        const triangleHeight = oh*(1-Math.abs(t-0.5)*2);
+                        const groundAtX = groundY - triangleHeight;
+                        if(py>groundAtX - ps){
+                            
+                        }
                     }
                 }
                 obstacles = obstacles.filter(o => o.x > -50);
