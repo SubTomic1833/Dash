@@ -108,6 +108,7 @@
             let level = 1;
             let speed = 5;
             let nextLevelScore = 600;
+            let cubeRotation =0;
 
             function spawnObstacle(){
                 let height = 20+ Math.random() * 60;
@@ -120,28 +121,27 @@
             }
 
             function drawPlayer(){
-                ctx.shadowColor = "#00ffcc";
-                ctx.shadowBlur = 25;
-                ctx.fillStyle= "#00ffcc";
-                
-                let x = player.x;
-                let y = player.y - player.size;
-                let size = player.size;
-                let r = 5;
-
+                const x = player.x;
+                const y = player.y - player.size;
+                const size = player.size;
+                const radius = 5;
+                ctx.save();
+                ctx.translate(x+size/2, y+size/2);
+                ctx.rotate(cubeRotation);
+                ctx.fillStyle = "#00ffcc";
                 ctx.beginPath();
-                ctx.moveTo(x + r, y);
-                ctx.lineTo(x + size - r, y);
-                ctx.quadraticCurveTo(x + size, y, x + size, y + r);
-                ctx.lineTo(x + size, y + size - r);
-                ctx.quadraticCurveTo(x + size, y + size, x + size - r, y + size);
-                ctx.lineTo(x + r, y + size);
-                ctx.quadraticCurveTo(x,y+size,x,y+size - r);
-                ctx.lineTo(x,y+r);
-                ctx.quadraticCurveTo(x,y,x+r,y);
+                ctx.moveTo(-size/2 + radius, -size/2);
+                ctx.lineTo(size/2 - radius, -size/2);
+                ctx.quadraticCurveTo(size/2, -size/2, size/2, -size/2+radius);
+                ctx.lineTo(size/2,size/2-radius);
+                ctx.quadraticCurveTo(size/2,size/2,size/2-radius,size/2);
+                ctx.lineTo(-size/2+radius,size/2);
+                ctx.quadraticCurveTo(-size/2,size/2,-size/2,size/2-radius);
+                ctx.lineTo(-size/2, -size/2 + radius);
+                ctx.quadraticCurveTo(-size/2, -size/2, -size/2 + radius, -size/2)
                 ctx.closePath();
                 ctx.fill();
-                ctx.shadowBlur = 0;
+                ctx.restore();
             }
 
             function drawTriangle(obs){
@@ -168,6 +168,12 @@
                     player.onGround = true;
                 }else{
                     player.onGround=false;
+                }
+                if(!player.onGround){
+                    cubeRotation += speed * 0.03;
+                }else{
+                    const quarterTurn = Math.PI / 2;
+                    cubeRotation = Math.round(cubeRotation/quarterTurn)*quarterTurn;
                 }
 
                 for(let i = 0; i < obstacles.length; i++){
