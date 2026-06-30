@@ -195,6 +195,10 @@
                     const quarterTurn = Math.PI / 2;
                     cubeRotation = Math.round(cubeRotation/quarterTurn)*quarterTurn;
                 }
+                for(let p of platforms){
+                    p.x -= speed;
+                }
+                platforms = platforms.filter(p => p.x + p.width > -50);
 
                 for(let i = 0; i < obstacles.length; i++){
                     obstacles[i].x -= speed;
@@ -204,6 +208,14 @@
                     if (player.x < obstacles[i].x + obstacles[i].width && player.x + player.size > obstacles[i].x && player.y > safeZone - player.size)
                     {
                         endGame();
+                    }
+                }
+                for(let p of platforms){
+                    const isLanding = player.x < p.x + p.width && player.x + player.size > p.x && player.y <= p.y && player.y + player.velocityY >= p.y;
+                    if(islanding){
+                        player.y - p.y;
+                        player.velocityY=0;
+                        player.onGround = true;
                     }
                 }
                 obstacles = obstacles.filter(o => o.x > -50);
