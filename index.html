@@ -29,8 +29,7 @@
                 0%{background-position:0% 50%;}
                 50%{background-position:100% 50%;}
                 100%{background-position:0% 50%;}
-            }
-            
+            }            
             canvas{
                 display:block;
                 margin:0 auto;
@@ -49,7 +48,7 @@
                 pointer-events:none;
                 color:white;
                 text-shadow:0 0 10px rgba(255,255,255,0.15);
-}
+            }
             #title{
                 position:absolute;
                 top:20px;
@@ -65,7 +64,19 @@
                 transition: opacity 0.6s ease;
                 animation: introDrop 0.8s ease-out;
             }
-
+            #instructions{
+                position:absolute;
+                top:100px;
+                left:50%;
+                transform:translateX(-50%);
+                font-size:14px;
+                font-weight:400;
+                letter-spacing:0.5px;
+                color:rgba(255,255,255,0.5);
+                font-family:'Inter', sans-serif;
+                pointer-events:none;
+                text-align:center;
+            }
             @keyframes introDrop{
                 0%{
                     transform: translateX(-50%) translateY(-30px);
@@ -76,7 +87,6 @@
                     opacity:1;
                 }
             }
-
             #flash{
                 position:fixed;
                 top:0;
@@ -92,16 +102,14 @@
     </head>
     <body>
         <div id="title">COSMO-RUN</div>
+        <div id="instructions">SPACE to jump &nbsp;&middot;&nbsp; clear spikes &nbsp;&middot;&nbsp; land on top of blocks for bonus points</div>
         <div id="message">Press SPACE to start</div>
         <div id="flash"></div>
         <canvas id="gameCanvas" width="800" height="400"></canvas>
-
         <script>
             const canvas = document.getElementById("gameCanvas");
             const ctx = canvas.getContext("2d");
-
             const groundY = 340;
-
             let gameStarted=false;
             let gameOver=false;
 
@@ -114,7 +122,6 @@
                 gravity:0.7,
                 onGround:true
             };
-
             let obstacles=[];
             let spawnTimer=0;
             let nextSpawn = 60 + Math.random() * 60;
@@ -137,8 +144,7 @@
                     alpha:0.2 + Math.random() *0.8
                 });
             }
-            
-
+            const BLOCK_LANDING_BONUS = 50;
             function spawnObstacle(){
                 const type = Math.random() <0.5 ? "spike" : "block";
                 if(type === "spike"){
@@ -155,11 +161,11 @@
                         type:"block",
                         x:canvas.width,
                         width:30 + Math.random() *40,
-                        height:height
+                        height:height,
+                        scored:false
                     })
                 }
             }
-
             function drawPlayer(){
                 const x = player.x;
                 const y = player.y - player.size;
@@ -168,9 +174,9 @@
                 ctx.save();
                 ctx.translate(x+size/2, y+size/2);
                 ctx.rotate(cubeRotation);
-                ctx.shadowColor = "#ffffff";
-                ctx.shadowBlur = 3;
-                ctx.fillStyle = "#eaeaea";
+                ctx.shadowColor ="#ffffff";
+                ctx.shadowBlur =3;
+                ctx.fillStyle ="#eaeaea";
                 ctx.beginPath();
                 ctx.moveTo(-size/2 + radius, -size/2);
                 ctx.lineTo(size/2 - radius, -size/2);
@@ -201,13 +207,13 @@
                 ctx.shadowBlur = 0;
             }
             function drawObstacle(o){
-                if(o.type === "spike"){
+                if(o.type ==="spike"){
                     drawTriangle(o);
                 }
 
                 if(o.type === "block"){
-                    ctx.fillStyle = "#d0d0d0";
-                    ctx.shadowColor = "rgba(255,255,255,0.15)";
+                    ctx.fillStyle = o.scored ? "#9fe6a0" : "#d0d0d0";
+                    ctx.shadowColor = o.scored ? "rgba(159,230,160,0.35)" : "rgba(255,255,255,0.15)";
                     ctx.shadowBlur = 8;
 
                     ctx.fillRect(
@@ -259,30 +265,32 @@
                             endGame();
                         }
                     }
-                    if(o.type === "block"){
-                        const blockTop = groundY - o.height;
-                        const prevFootY = py - player.velocityY;
-                        const currFootY = py;
-                        const isFalling = player.velocityY >= 0;
+                    if(o.type==="block"){
+                        const blockTop =groundY - o.height;
+                        const prevFootY =py - player.velocityY;
+                        const isFalling =player.velocityY >= 0;
+                        const wasAboveTop =prevFootY <= blockTop;
 
-                        const wasAbove = prevFootY <= blockTop;
-                        const nowAtOrBelow = currFootY >= blockTop;
-
-                        if(wasAbove && nowAtOrBelow && isFalling){
-                            player.y = blockTop;
-                            player.velocityY = 0;
-                            player.onGround = true;
+                        if(py>blockTop){
+                            if(wasAboveTop&&isFalling){
+                                player.y =blockTop;
+                                player.velocityY= 0;
+                                player.onGround= true;
+                                if(!o.scored){
+                                    o.scored= true;
+                                    score +=BLOCK_LANDING_BONUS;
+                                }
+                            }else{
+                                endGame();
+                            }
                         }
                     }
                 }
-                obstacles = obstacles.filter(o => o.x > -50);
-
-                
+                obstacles = obstacles.filter(o => o.x > -50);  
                 const gridSize = 40;
                 bgFarOffset -= speed *0.1;
                 bgMidOffset -= speed *0.3;
                 backgroundOffset -= speed *0.6;
-
                 frameCount++;
                 spawnTimer++
                 if(spawnTimer > nextSpawn){
@@ -297,13 +305,12 @@
                     nextLevelScore += 600;
                 }
             }
-
             function drawStars(){
                 for(let star of stars){
                     ctx.globalAlpha = star.alpha + Math.sin(frameCount * 0.03 + star.x) * 0.2;
                     ctx.fillStyle = "white";
                     ctx.beginPath();
-                    ctx.arc(star.x, star.y, star.size,0,Math.PI*2);
+                    ctx.arc(star.x,star.y,star.size,0,Math.PI*2);
                     ctx.fill();
                     star.x -= star.speed;
                     if(star.x <0){
@@ -348,6 +355,7 @@
                     if(!gameStarted){
                         gameStarted = true;
                         document.getElementById("message").style.display = "none";
+                        document.getElementById("instructions").style.display = "none";
                         flashScreen();
                     }
                     if(gameOver){
@@ -361,18 +369,17 @@
 
             function flashScreen(){
                 const flash = document.getElementById("flash");
-                flash.style.opacity = "1";
+                flash.style.opacity="1";
 
                 setTimeout(() => {
                     flash.style.transition = "opacity 0.3s ease";
                     flash.style.opacity = "0";
                 }, 50);
             }
-
             function endGame(){
-                gameOver = true;
+                gameOver =true;
                 document.getElementById("message").style.display = "block";
-                document.getElementById("message").innerText = "Game Over : Press SPACE to restart";
+                document.getElementById("message").innerText = "Game Over - Score: " + score + " : Press SPACE to restart";
             }
         </script>
     </body>
