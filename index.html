@@ -202,10 +202,9 @@
                     if (xOverlap){
                         const centerX = (px+ps/2)-ox;
                         const t = centerX/ow;
-                        const triangleHeight = oh*(1-Math.abs(t-0.5)*2);
                         const groundAtX = groundY - triangleHeight;
                         if(py>groundAtX - ps){
-                            
+                            endGame();
                         }
                     }
                 }
